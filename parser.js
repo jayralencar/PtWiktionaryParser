@@ -34,7 +34,7 @@ Parser.prototype.fetch = function (word) {
 
 }
 
-Parser.prototype.get_data = function (types,word) {
+Parser.prototype.get_data = function (types, word) {
     var promises = [];
     var self = this;
     types.forEach(element => {
@@ -44,6 +44,9 @@ Parser.prototype.get_data = function (types,word) {
             switch (POS) {
                 case 'n': method = self.get_noun; break;
                 case 'v': method = self.get_verb; break;
+                case 'adj': method = self.get_adjective; break;
+                case 'a': method = self.get_article; break;
+                case 'pr': method = self.get_pronoun; break;
             }
             if (method) {
                 method(word).then(function (res) {
@@ -60,21 +63,26 @@ Parser.prototype.get_data = function (types,word) {
 Parser.prototype.get_noun = function (word) {
     var self = this;
     return new Promise((resolve, reject) => {
-        $('#Substantivo').parent().next().find('tr').each(function(i, el){
-            if(word == $(el).find('td').first().next().children('a').text()){
-                resolve({
-                    post: 'n',
+        var genders = [];
+        $('#Substantivo').parent().next().find('tr').each(function (i, el) {
+            if(["Masculino","Feminino"].indexOf($(el).find('td').first().children('b').children('a').text()) >= 0){
+                genders.push({
                     gender: $(el).find('td').first().children('b').children('a').text(),
                     singular: $(el).find('td').first().next().children('a').text(),
                     plural: $(el).find('td').first().next().next().children('a').text()
                 })
             }
+            
         });
+        resolve({
+            pos: 'n',
+            genders: genders
+        })
     })
 }
 
-Parser.prototype.get_verb = function(word){
-    return new Promise((resolve, reject)=>{
+Parser.prototype.get_verb = function (word) {
+    return new Promise((resolve, reject) => {
         var navFrame = $('#Conjugação').parent().next();
         var forms = navFrame.find('table').first();
         var conj = navFrame.find('table').eq(1);
@@ -87,7 +95,7 @@ Parser.prototype.get_verb = function(word){
 
 
         var present = {
-            singular:{
+            singular: {
                 first: conj.children('tbody').children('tr').eq(2).children('td').eq(2).text().trim(),
                 second: conj.children('tbody').children('tr').eq(2).children('td').eq(3).text().trim(),
                 third: conj.children('tbody').children('tr').eq(2).children('td').eq(4).text().trim(),
@@ -100,7 +108,7 @@ Parser.prototype.get_verb = function(word){
         }
 
         var past = {
-            singular:{
+            singular: {
                 first: conj.children('tbody').children('tr').eq(4).children('td').eq(1).text().trim(),
                 second: conj.children('tbody').children('tr').eq(4).children('td').eq(2).text().trim(),
                 third: conj.children('tbody').children('tr').eq(4).children('td').eq(3).text().trim(),
@@ -113,7 +121,7 @@ Parser.prototype.get_verb = function(word){
         }
 
         var future = {
-            singular:{
+            singular: {
                 first: conj.children('tbody').children('tr').eq(6).children('td').eq(1).text().trim(),
                 second: conj.children('tbody').children('tr').eq(6).children('td').eq(2).text().trim(),
                 third: conj.children('tbody').children('tr').eq(6).children('td').eq(3).text().trim(),
@@ -126,6 +134,7 @@ Parser.prototype.get_verb = function(word){
         }
 
         resolve({
+            pos: 'v',
             forms: verbForms,
             conjugation: {
                 present: present,
@@ -133,8 +142,56 @@ Parser.prototype.get_verb = function(word){
                 future: future
             }
         })
-        
-        // console.log(forms.html())
+    })
+}
+
+Parser.prototype.get_adjective = function (word) {
+    var self = this;
+    return new Promise((resolve, reject) => {
+        var genders = [];
+        $('#Adjetivo').parent().next().find('tr').each(function (i, el) {
+            if(["Masculino","Feminino"].indexOf($(el).find('td').first().children('b').children('a').text()) >= 0){
+                genders.push({
+                    gender: $(el).find('td').first().children('b').children('a').text(),
+                    singular: $(el).find('td').first().next().children('a').text(),
+                    plural: $(el).find('td').first().next().next().children('a').text()
+                })
+            }
+            
+        });
+        resolve({
+            pos: 'adj',
+            genders: genders
+        })
+    });
+}
+
+Parser.prototype.get_article = function(word){
+    var self = this;
+    return new Promise((resolve, reject) => {
+        var genders = [];
+        $('#Artigo').parent().next().find('tr').each(function (i, el) {
+            if(["Masculino","Feminino"].indexOf($(el).find('td').first().children('b').children('a').text()) >= 0){
+                genders.push({
+                    gender: $(el).find('td').first().children('b').children('a').text(),
+                    singular: $(el).find('td').first().next().children('a').text(),
+                    plural: $(el).find('td').first().next().next().children('a').text()
+                })
+            }
+            
+        });
+        resolve({
+            pos: 'a',
+            genders: genders
+        })
+    });
+}
+
+Parser.prototype.get_pronoun = function(word){
+    return new Promise((resolve, reject)=>{
+        resolve({
+            post: 'pr'
+        })
     })
 }
 
