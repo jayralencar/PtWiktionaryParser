@@ -1,10 +1,10 @@
 {
-  "name": "mkontologia",
-  "version": "0.0.1",
+  "name": "ptwikiparser",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "parser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/index.js"
   },
   "author": "",
   "license": "ISC",
