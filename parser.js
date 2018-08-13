@@ -67,9 +67,9 @@ Parser.prototype.get_noun = function (word) {
         $('#Substantivo').parent().next().find('tr').each(function (i, el) {
             if(["Masculino","Feminino"].indexOf($(el).find('td').first().children('b').children('a').text()) >= 0){
                 genders.push({
-                    gender: $(el).find('td').first().children('b').children('a').text(),
-                    singular: $(el).find('td').first().next().children('a').text(),
-                    plural: $(el).find('td').first().next().next().children('a').text()
+                    gender: $(el).find('td').eq(0).text().trim(),
+                    singular: $(el).find('td').eq(1).text().trim(),
+                    plural: $(el).find('td').eq(2).text().trim()
                 })
             }
             
